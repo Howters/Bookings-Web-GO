@@ -1,25 +1,31 @@
 package main
 
 import (
-	"net/http"
-
-	// "github.com/bmizerany/pat"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/howters/bookings/pkg/config"
-	"github.com/howters/bookings/pkg/handler"
+	"github.com/howters/bookings/pkg/handlers"
+	"net/http"
 )
 
-func routes(app *config.AppConfig) http.Handler{
-	// mux := pat.New();
-	// mux.Get("/", http.HandlerFunc(handler.Repo.Home));
-	// mux.Get("/about", http.HandlerFunc(handler.Repo.About));
-
+func routes(app *config.AppConfig) http.Handler {
 	mux := chi.NewRouter()
-	mux.Use(NoSurf)
-	mux.Use(SessionLoader)
 
-	mux.Get("/", handler.Repo.Home)
-	mux.Get("/about", handler.Repo.About)
+	mux.Use(middleware.Recoverer)
+	mux.Use(NoSurf)
+	mux.Use(SessionLoad)
+
+	mux.Get("/", handlers.Repo.Home)
+	mux.Get("/about", handlers.Repo.About)
+	mux.Get("/generals-quarters", handlers.Repo.Generals)
+	mux.Get("/majors-suite", handlers.Repo.Majors)
+	mux.Get("/search-availability", handlers.Repo.Availability)
+	mux.Get("/contact", handlers.Repo.Contact)
+
+	mux.Get("/make-reservation", handlers.Repo.Reservation)
+
+	fileServer := http.FileServer(http.Dir("./static/"))
+	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
 
 	return mux
 }
