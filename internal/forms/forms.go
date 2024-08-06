@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/asaskevich/govalidator"
 )
 
 type Form struct {
@@ -34,7 +36,7 @@ func (f *Form) Required(fields ...string) {
 
 // Checks if form field is in post and not empty
 func (f *Form) Has(field string, r *http.Request) bool {
-	x := r.Form.Get(field)
+	x := f.Get(field)
 
 	if x == "" {
 		f.Errors.Add(field, "This field cannot be blank")
@@ -44,7 +46,7 @@ func (f *Form) Has(field string, r *http.Request) bool {
 }
 
 func (f *Form) MinLength(field string, length int, r *http.Request) bool {
-	x := r.Form.Get(field)
+	x := f.Get(field)
 
 	if len(x) < length {
 		f.Errors.Add(field, fmt.Sprintf("This field must be at least %d characters long", length))
@@ -52,4 +54,10 @@ func (f *Form) MinLength(field string, length int, r *http.Request) bool {
 	}
 
 	return true
+}
+
+func (f *Form) IsEmail(field string, r *http.Request) {
+	if !govalidator.IsEmail(f.Get(field)) {
+		f.Errors.Add(field, "Invalid Email Address")
+	}
 }
