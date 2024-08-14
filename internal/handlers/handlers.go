@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/howters/bookings/internal/config"
 	"github.com/howters/bookings/internal/forms"
+	"github.com/howters/bookings/internal/helpers"
 	"github.com/howters/bookings/internal/models"
 	"github.com/howters/bookings/internal/render"
 )
@@ -70,9 +72,9 @@ func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 
 func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
-
+	err = errors.New("his is an error message")
 	if err != nil {
-		log.Println(err)
+		helpers.ServerError(w, err)
 		return
 	}
 
